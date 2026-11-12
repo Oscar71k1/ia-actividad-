@@ -4,7 +4,7 @@ Proyecto del reto práctico de clasificación inteligente de solicitudes de sopo
 
 Se implementarán dos motores: uno basado en reglas y otro con inteligencia artificial generativa, disponibles mediante una API.
 
-Estado: primer avance del motor tradicional. La API y el motor generativo están pendientes.
+Estado: primer avance con API y motor tradicional funcionales. Incluye preparación del motor generativo y diez casos de referencia; la integración generativa real está pendiente.
 
 ## Ejecutar este avance
 
@@ -14,6 +14,24 @@ Requiere Node.js 22 o superior. No necesita dependencias, claves ni conexión a 
 npm run examples
 npm test
 ```
+
+## API local
+
+Ejecute `npm start` y use otra terminal de PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri http://127.0.0.1:3000/api/analyze -Method Post -ContentType 'application/json' -Body '{"message":"No puedo iniciar sesión","mode":"traditional"}'
+```
+
+El servidor escucha en localhost, puerto 3000 (configurable mediante `PORT`). Deténgalo con Ctrl+C. No necesita instalar paquetes.
+
+`POST /api/analyze` recibe `message` y `mode`. Devuelve el contrato de la función con HTTP 200 para el motor tradicional. Estados de error: 400 para JSON o campos inválidos, 404 para ruta inexistente, 405 para método incorrecto, 413 para cuerpos mayores a 32 KiB, 415 para contenido distinto de JSON y 501 para el motor generativo pendiente. No almacena solicitudes.
+
+## Preparación de IA y pruebas
+
+Se eligió Ollama local para la futura integración. Consulte [el plan y la documentación oficial del proveedor](docs/preparacion-ia.md). El prompt está en `prompts/support-system.txt` y los diez casos con resultados esperados están en `fixtures/support-cases.json`.
+
+`npm test` comprueba el motor y la API mediante un servidor HTTP real en un puerto temporal, incluyendo los diez casos, entradas inválidas y el estado pendiente del motor generativo. Estas comprobaciones no son evidencia de ejecución de IA generativa.
 
 ## Usar la función
 
