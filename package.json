@@ -1,12 +1,18 @@
 {
   "name": "ai-support-engine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "node src/server.mjs",
     "examples": "node examples/traditional.mjs",
-    "test": "node --test"
+    "examples:generative": "node examples/generative.mjs",
+    "test": "node --test",
+    "compare": "node scripts/compare.mjs",
+    "evidence:api": "node scripts/collect-api-evidence.mjs",
+    "evidence:examples": "node scripts/run-examples-evidence.mjs",
+    "evidence:tests": "node scripts/run-tests-evidence.mjs",
+    "evidence": "npm run evidence:tests && npm run evidence:examples && npm run evidence:api && npm run compare"
   },
   "engines": { "node": ">=22" }
 }

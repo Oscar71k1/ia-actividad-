@@ -1,21 +1,45 @@
-# Preparación del motor generativo
+# Motor generativo con Ollama
 
-Proveedor elegido para el siguiente avance: **Ollama local**. Permite conectar un modelo instalado en el equipo mediante HTTP. El modelo concreto se elegirá según la memoria disponible; todavía no se ha instalado ni ejecutado.
+Estado: **implementado y conectado a un proveedor local real**. No se usan respuestas escritas manualmente como sustituto del modelo.
 
-Referencia oficial: [API de chat de Ollama](https://docs.ollama.com/api/chat).
+## Proveedor y modelo
 
-Plan de integración:
+Se eligió **Ollama** por ser local, gratuito y no requerir claves. El modelo por defecto es `qwen2.5:3b`; se puede cambiar con `OLLAMA_MODEL` (por ejemplo, `qwen2.5:1.5b` en equipos con poca memoria). La URL y el timeout se configuran con `OLLAMA_URL` y `OLLAMA_TIMEOUT_MS`.
 
-1. Instalar Ollama y descargar un modelo compatible con el equipo.
-2. Configurar el nombre del modelo y la URL local del proveedor en el servidor.
-3. Enviar `POST http://localhost:11434/api/chat` con `model`, `stream: false`, `format: "json"` y dos mensajes: uno de rol `system` con `prompts/support-system.txt` y otro de rol `user` con la solicitud original. No concatenar la solicitud dentro del prompt de sistema.
-4. Interpretar `message.content` como JSON y validar campos, tipos y valores permitidos. Exigir revisión humana para posibles incidentes de seguridad; el prompt por sí solo no garantiza protección.
-5. Manejar tiempo de espera, proveedor desconectado y respuestas inválidas sin exponer información sensible ni sustituirlas por respuestas simuladas.
+## Flujo de integración
 
-## Casos de referencia
+1. `src/generative.mjs` lee `prompts/support-system.txt` como prompt de sistema.
+2. Envía `POST {OLLAMA_URL}/api/chat` con `model`, `stream: false`, `format` (esquema JSON del contrato) y `temperature: 0`.
+3. El mensaje del usuario viaja en un mensaje de rol `user`, **nunca concatenado** al prompt de sistema.
+4. Interpreta `message.content` como JSON y lo valida con `src/contract.mjs`.
+5. Devuelve `category`, `priority`, `response`, `requiresHumanReview` y `mode`.
 
-`fixtures/support-cases.json` define de antemano 10 solicitudes: normales, ambiguas y dos intentos de manipulación. Los casos ambiguos incluyen el criterio usado para decidir el resultado esperado.
+## Validación y seguridad
 
-En el siguiente avance se ejecutarán los mismos casos en ambos motores. Registrar categoría, prioridad, revisión humana, formato válido y acierto. Se contará como clasificación correcta la coincidencia de categoría y prioridad; el cumplimiento del formato y la revisión humana se registrarán por separado. Porcentaje = aciertos / 10 × 100 por motor. Un fallo del proveedor cuenta como caso no acertado, no se elimina del denominador.
+- Se comprueban campos, tipos y valores permitidos.
+- `response` debe ser un texto no vacío y de máximo 4000 caracteres.
+- Si la categoría es `SECURITY`, se fuerza `requiresHumanReview: true`.
+- El servidor fija `mode: "generative"`; no confía en el valor devuelto por el modelo.
+- Los errores del proveedor se traducen a HTTP 502, 503 o 504 con códigos estables.
+- Nunca se devuelve el cuerpo de error del proveedor, para no filtrar información interna.
+- No se registran los mensajes de los usuarios ni se almacenan solicitudes.
+- `.env` está ignorado por git y no hay credenciales en el repositorio.
 
-Estado actual: preparación solamente. No hay resultados generativos ni comparación final; `mode: "generative"` devuelve HTTP 501.
+## Cómo ejecutar
+
+```sh
+ollama pull qwen2.5:3b
+npm start
+npm run examples:generative
+npm run compare
+```
+
+`npm test` no requiere Ollama: usa servidores HTTP falsos para comprobar la integración, los timeouts y las respuestas inválidas.
+
+## Comparación
+
+`fixtures/support-cases.json` define 15 solicitudes con su clasificación de referencia: normales, ambiguas, adversariales y variantes de seguridad. `scripts/compare.mjs` ejecuta ambos motores, calcula el porcentaje de acierto (categoría y prioridad), registra formato y revisión humana, y escribe `evidence/comparison.json` y `evidence/comparison.md`. Un fallo del proveedor cuenta como caso no acertado.
+
+## Limitaciones
+
+El modelo local puede tardar decenas de segundos por solicitud en CPU. La separación de roles y la validación reducen el riesgo de inyección de instrucciones, pero no lo eliminan. Los 15 casos son una prueba funcional, no una medida de precisión general.

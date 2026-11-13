@@ -32,6 +32,22 @@ test('da precedencia a seguridad aunque se solicite otra clasificación', () => 
   }
 });
 
+test('detecta variantes comunes de incidentes de seguridad', () => {
+  for (const [message, priority] of [
+    ['Mi contraseña está expuesta.', 'CRITICAL'],
+    ['Mi cuenta fue hackeada.', 'HIGH'],
+    ['Me hackearon la cuenta.', 'HIGH'],
+    ['Robaron mis datos.', 'CRITICAL'],
+    ['Hubo una brecha de seguridad.', 'HIGH'],
+    ['Entraron sin permiso a mi cuenta.', 'HIGH'],
+  ]) {
+    const result = analyzeTraditional(message);
+    assert.equal(result.category, 'SECURITY', message);
+    assert.equal(result.priority, priority, message);
+    assert.equal(result.requiresHumanReview, true, message);
+  }
+});
+
 test('distingue incidentes críticos de fallas y accesos de alto impacto', () => {
   assert.equal(analyzeTraditional('Hay un robo de datos.').priority, 'CRITICAL');
   assert.equal(analyzeTraditional('No puedo entrar, afecta a toda la empresa.').priority, 'HIGH');
