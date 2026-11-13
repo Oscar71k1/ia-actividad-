@@ -2,6 +2,15 @@
 
 Proyecto del reto práctico de clasificación inteligente de solicitudes de soporte.
 
+## Integrantes
+
+- Oscar Flores Cerqueda
+- Oscar Yael Hernandez Rodriguez
+
+También disponibles en [integrantes.txt](integrantes.txt).
+
+## Estado del proyecto
+
 Se implementarán dos motores: uno basado en reglas y otro con inteligencia artificial generativa, disponibles mediante una API.
 
 Estado: primer avance con API y motor tradicional funcionales. Incluye preparación del motor generativo y diez casos de referencia; la integración generativa real está pendiente.
