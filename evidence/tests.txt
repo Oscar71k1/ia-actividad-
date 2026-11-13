@@ -1,5 +1,5 @@
-Fecha UTC: 2026-11-13T04:52:43.008Z
-Commit evaluado: 38aa2385ebb9419093533917ad2182d04ed47258
+Fecha UTC: 2026-11-13T05:06:19.442Z
+Commit evaluado: dc9c60e72080ea58d882a090460190aa66985d98
 Node: v22.22.0
 
 Comando: node --test --test-reporter=tap
@@ -9,148 +9,184 @@ TAP version 13
     # Subtest: procesa los casos de referencia por HTTP
     ok 1 - procesa los casos de referencia por HTTP
       ---
-      duration_ms: 119.0282
+      duration_ms: 106.0945
       type: 'test'
       ...
     # Subtest: responde en modo generativo con el mismo contrato
     ok 2 - responde en modo generativo con el mismo contrato
       ---
-      duration_ms: 5.7853
+      duration_ms: 5.91
       type: 'test'
       ...
     # Subtest: rechaza JSON, campos y tamaños inválidos
     ok 3 - rechaza JSON, campos y tamaños inválidos
       ---
-      duration_ms: 26.9055
+      duration_ms: 29.9415
       type: 'test'
       ...
     # Subtest: rechaza rutas y métodos no disponibles
     ok 4 - rechaza rutas y métodos no disponibles
       ---
-      duration_ms: 8.0675
+      duration_ms: 5.8394
       type: 'test'
       ...
     1..4
 ok 1 - API HTTP: clasificación, validación y errores controlados
   ---
-  duration_ms: 198.4137
+  duration_ms: 180.128
   type: 'test'
   ...
 # Subtest: API HTTP: traduce errores del proveedor generativo
 ok 2 - API HTTP: traduce errores del proveedor generativo
   ---
-  duration_ms: 33.9539
+  duration_ms: 25.7009
   type: 'test'
   ...
 # Subtest: un acierto exige coincidir en categoría y prioridad
 ok 3 - un acierto exige coincidir en categoría y prioridad
   ---
-  duration_ms: 2.2089
+  duration_ms: 2.1027
   type: 'test'
   ...
 # Subtest: un resultado nulo o incompleto no acierta ni cumple formato
 ok 4 - un resultado nulo o incompleto no acierta ni cumple formato
   ---
-  duration_ms: 0.2889
+  duration_ms: 0.3246
   type: 'test'
   ...
 # Subtest: resume aciertos, formato y revisión humana
 ok 5 - resume aciertos, formato y revisión humana
   ---
-  duration_ms: 1.6198
+  duration_ms: 2.2345
   type: 'test'
   ...
 # Subtest: un conjunto vacío no divide por cero
 ok 6 - un conjunto vacío no divide por cero
   ---
-  duration_ms: 1.4318
+  duration_ms: 1.9853
   type: 'test'
   ...
 # Subtest: envía el mensaje como rol user y normaliza la salida
 ok 7 - envía el mensaje como rol user y normaliza la salida
   ---
-  duration_ms: 71.5033
+  duration_ms: 71.8808
   type: 'test'
   ...
 # Subtest: rechaza JSON inválido y salidas fuera del contrato
 ok 8 - rechaza JSON inválido y salidas fuera del contrato
   ---
-  duration_ms: 41.1447
+  duration_ms: 38.8621
   type: 'test'
   ...
 # Subtest: acepta JSON dentro de un bloque Markdown
 ok 9 - acepta JSON dentro de un bloque Markdown
   ---
-  duration_ms: 12.2199
+  duration_ms: 12.0934
   type: 'test'
   ...
 # Subtest: no filtra el cuerpo del proveedor cuando responde con error
 ok 10 - no filtra el cuerpo del proveedor cuando responde con error
   ---
-  duration_ms: 16.4531
+  duration_ms: 11.296
   type: 'test'
   ...
 # Subtest: señala proveedor no disponible
 ok 11 - señala proveedor no disponible
   ---
-  duration_ms: 8.8174
+  duration_ms: 11.7505
   type: 'test'
   ...
 # Subtest: señala tiempo de espera agotado
 ok 12 - señala tiempo de espera agotado
   ---
-  duration_ms: 66.5136
+  duration_ms: 59.9162
   type: 'test'
   ...
 # Subtest: rechaza mensajes inválidos antes de llamar al proveedor
 ok 13 - rechaza mensajes inválidos antes de llamar al proveedor
   ---
-  duration_ms: 2.1169
+  duration_ms: 1.0896
+  type: 'test'
+  ...
+# Subtest: configura Ollama por defecto y Groq por variables de entorno
+ok 14 - configura Ollama por defecto y Groq por variables de entorno
+  ---
+  duration_ms: 0.529
+  type: 'test'
+  ...
+# Subtest: usa el endpoint compatible con OpenAI de Groq y extrae choices[].message.content
+ok 15 - usa el endpoint compatible con OpenAI de Groq y extrae choices[].message.content
+  ---
+  duration_ms: 12.4436
+  type: 'test'
+  ...
+# Subtest: exige la API key cuando el proveedor es Groq
+ok 16 - exige la API key cuando el proveedor es Groq
+  ---
+  duration_ms: 0.5359
+  type: 'test'
+  ...
+# Subtest: rechaza proveedores desconocidos
+ok 17 - rechaza proveedores desconocidos
+  ---
+  duration_ms: 0.262
+  type: 'test'
+  ...
+# Subtest: reintenta cuando el proveedor limita la tasa (HTTP 429)
+ok 18 - reintenta cuando el proveedor limita la tasa (HTTP 429)
+  ---
+  duration_ms: 21.1819
+  type: 'test'
+  ...
+# Subtest: agota los reintentos de tasa y devuelve error del proveedor
+ok 19 - agota los reintentos de tasa y devuelve error del proveedor
+  ---
+  duration_ms: 25.849
   type: 'test'
   ...
 # Subtest: clasifica las cuatro categorías y respeta el contrato común
-ok 14 - clasifica las cuatro categorías y respeta el contrato común
+ok 20 - clasifica las cuatro categorías y respeta el contrato común
   ---
-  duration_ms: 8.9383
+  duration_ms: 6.4892
   type: 'test'
   ...
 # Subtest: da precedencia a seguridad aunque se solicite otra clasificación
-ok 15 - da precedencia a seguridad aunque se solicite otra clasificación
+ok 21 - da precedencia a seguridad aunque se solicite otra clasificación
   ---
-  duration_ms: 0.9735
+  duration_ms: 0.9192
   type: 'test'
   ...
 # Subtest: detecta variantes comunes de incidentes de seguridad
-ok 16 - detecta variantes comunes de incidentes de seguridad
+ok 22 - detecta variantes comunes de incidentes de seguridad
   ---
-  duration_ms: 0.4706
+  duration_ms: 0.4562
   type: 'test'
   ...
 # Subtest: distingue incidentes críticos de fallas y accesos de alto impacto
-ok 17 - distingue incidentes críticos de fallas y accesos de alto impacto
+ok 23 - distingue incidentes críticos de fallas y accesos de alto impacto
   ---
-  duration_ms: 0.6156
+  duration_ms: 0.6367
   type: 'test'
   ...
 # Subtest: solicita revisión humana cuando no encuentra una regla
-ok 18 - solicita revisión humana cuando no encuentra una regla
+ok 24 - solicita revisión humana cuando no encuentra una regla
   ---
-  duration_ms: 0.4368
+  duration_ms: 0.2749
   type: 'test'
   ...
 # Subtest: rechaza entradas inválidas antes de clasificar
-ok 19 - rechaza entradas inválidas antes de clasificar
+ok 25 - rechaza entradas inválidas antes de clasificar
   ---
-  duration_ms: 1.2343
+  duration_ms: 0.6372
   type: 'test'
   ...
-1..19
-# tests 23
+1..25
+# tests 29
 # suites 0
-# pass 23
+# pass 29
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 535.0613
+# duration_ms 525.2612
 

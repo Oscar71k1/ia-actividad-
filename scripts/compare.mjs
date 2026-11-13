@@ -8,6 +8,8 @@ import { analyzeTraditional } from '../src/traditional.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const cases = JSON.parse(await readFile(new URL('../fixtures/support-cases.json', import.meta.url), 'utf8'));
 const config = getGenerativeConfig();
+const delayMs = Number(process.env.EVIDENCE_DELAY_MS ?? 3000);
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function currentCommit() {
   try {
@@ -45,6 +47,8 @@ for (const mode of ['traditional', 'generative']) {
       durationMs: Date.now() - started,
     });
     console.log(`${testCase.id} ${mode.padEnd(10)} ${evaluation.correct ? 'ACIERTO' : 'FALLO  '}  ${evaluation.category ?? '-'} / ${evaluation.priority ?? '-'}${error ? `  (${error.code ?? error.name})` : ''}`);
+    // Espacia las llamadas al proveedor para respetar los límites de tasa.
+    if (mode === 'generative' && Number.isFinite(delayMs) && delayMs > 0) await pause(delayMs);
   }
 }
 
@@ -57,7 +61,7 @@ const report = {
   timestamp: startedAt,
   commit: currentCommit(),
   node: process.version,
-  provider: { type: 'ollama', model: config.model, baseUrl: config.baseUrl, timeoutMs: config.timeoutMs },
+  provider: { type: config.provider, label: config.label, model: config.model, baseUrl: config.baseUrl, timeoutMs: config.timeoutMs },
   caseCount: cases.length,
   summaries,
   rows,
@@ -80,7 +84,7 @@ const markdown = [
   `- Fecha UTC: ${startedAt}`,
   `- Commit: ${report.commit ?? 'no disponible'}`,
   `- Node: ${process.version}`,
-  `- Proveedor: Ollama (${config.model}) en ${config.baseUrl}`,
+  `- Proveedor: ${config.label} (${config.model}) en ${config.baseUrl}`,
   `- Casos: ${cases.length}`,
   '',
   'Un acierto exige coincidir en categoría y prioridad. Un error del proveedor cuenta como caso no acertado.',

@@ -65,7 +65,15 @@ export function createApp({ generative = analyzeGenerative } = {}) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = Number(process.env.PORT || 3000);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT debe estar entre 1 y 65535.');
-  const { model, baseUrl } = getGenerativeConfig();
+  const config = (() => {
+    try {
+      return getGenerativeConfig();
+    } catch (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+  })();
+  const { label, model, baseUrl } = config;
   const server = createApp();
   server.on('error', (error) => {
     console.error(`No se pudo iniciar el servidor (${error.code}).`);
@@ -73,6 +81,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   });
   server.listen(port, '127.0.0.1', () => {
     console.log(`API disponible en http://127.0.0.1:${port}/api/analyze`);
-    console.log(`Motor generativo: ${model} en ${baseUrl}`);
+    console.log(`Motor generativo: ${label} ${model} en ${baseUrl}`);
+    if (config.requiresApiKey && !config.apiKey) {
+      console.warn(`Aviso: falta ${config.apiKeyEnv}; el motor generativo responderá 503.`);
+    }
   });
 }

@@ -1,12 +1,13 @@
 {
-  "timestamp": "2026-11-13T00:22:51.951Z",
-  "commit": "38aa2385ebb9419093533917ad2182d04ed47258",
+  "timestamp": "2026-11-13T05:03:49.016Z",
+  "commit": "dc9c60e72080ea58d882a090460190aa66985d98",
   "node": "v22.22.0",
   "provider": {
-    "type": "ollama",
-    "model": "qwen2.5:3b",
-    "baseUrl": "http://127.0.0.1:11434",
-    "timeoutMs": 120000
+    "type": "groq",
+    "label": "Groq",
+    "model": "openai/gpt-oss-120b",
+    "baseUrl": "https://api.groq.com/openai/v1",
+    "timeoutMs": 60000
   },
   "caseCount": 15,
   "summaries": {
@@ -21,12 +22,12 @@
     },
     "generative": {
       "total": 15,
-      "correct": 0,
-      "percent": 0,
-      "formatValid": 0,
-      "formatPercent": 0,
-      "reviewMatchesExpected": 0,
-      "reviewPercent": 0
+      "correct": 14,
+      "percent": 93.3,
+      "formatValid": 15,
+      "formatPercent": 100,
+      "reviewMatchesExpected": 15,
+      "reviewPercent": 100
     }
   },
   "rows": [
@@ -184,7 +185,7 @@
         "mode": "traditional"
       },
       "error": null,
-      "durationMs": 1
+      "durationMs": 0
     },
     {
       "id": "C07",
@@ -262,7 +263,7 @@
         "mode": "traditional"
       },
       "error": null,
-      "durationMs": 1
+      "durationMs": 0
     },
     {
       "id": "C10",
@@ -288,7 +289,7 @@
         "mode": "traditional"
       },
       "error": null,
-      "durationMs": 1
+      "durationMs": 0
     },
     {
       "id": "C11",
@@ -430,19 +431,21 @@
         "priority": "MEDIUM",
         "requiresHumanReview": false
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "ACCESS",
+      "priority": "MEDIUM",
+      "requiresHumanReview": false,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "ACCESS",
+        "priority": "MEDIUM",
+        "response": "Lamentamos que tenga problemas para iniciar sesión. Por favor, verifique que su nombre de usuario y contraseña sean correctos y que la cuenta no esté bloqueada. Si el problema persiste, contáctenos con más detalles para asistirle.",
+        "requiresHumanReview": false,
+        "mode": "generative"
       },
-      "durationMs": 47
+      "error": null,
+      "durationMs": 819
     },
     {
       "id": "C02",
@@ -454,19 +457,21 @@
         "priority": "MEDIUM",
         "requiresHumanReview": false
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "ACCESS",
+      "priority": "MEDIUM",
+      "requiresHumanReview": false,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "ACCESS",
+        "priority": "MEDIUM",
+        "response": "Hemos registrado que su cuenta está bloqueada y no puede acceder. Por favor, verifique si ha recibido un correo de restablecimiento o contacte al soporte para desbloquearla. Estamos aquí para ayudarle a restablecer el acceso lo antes posible.",
+        "requiresHumanReview": false,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 619
     },
     {
       "id": "C03",
@@ -478,19 +483,21 @@
         "priority": "MEDIUM",
         "requiresHumanReview": false
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "BUG",
+      "priority": "MEDIUM",
+      "requiresHumanReview": false,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "BUG",
+        "priority": "MEDIUM",
+        "response": "Lamentamos el inconveniente. Por favor, proporcione más detalles como el dispositivo, versión de la aplicación y pasos exactos para reproducir el cierre al guardar, para que podamos investigarlo.",
+        "requiresHumanReview": false,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 632
     },
     {
       "id": "C04",
@@ -502,19 +509,21 @@
         "priority": "HIGH",
         "requiresHumanReview": false
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "BUG",
+      "priority": "HIGH",
+      "requiresHumanReview": false,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "BUG",
+        "priority": "HIGH",
+        "response": "Hemos registrado que el sistema presenta fallas para varios usuarios. Nuestro equipo investigará el problema y le mantendremos informado sobre la solución. Por favor, proporcione cualquier detalle adicional que pueda ayudar, como pasos específicos o mensajes de error.",
+        "requiresHumanReview": false,
+        "mode": "generative"
       },
-      "durationMs": 3
+      "error": null,
+      "durationMs": 713
     },
     {
       "id": "C05",
@@ -526,19 +535,21 @@
         "priority": "LOW",
         "requiresHumanReview": false
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "FEATURE",
+      "priority": "LOW",
+      "requiresHumanReview": false,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "FEATURE",
+        "priority": "LOW",
+        "response": "Gracias por tu sugerencia. Hemos registrado la solicitud de agregar un modo oscuro y la remitiremos al equipo de desarrollo para su evaluación. Te mantendremos informado sobre su progreso.",
+        "requiresHumanReview": false,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 736
     },
     {
       "id": "C06",
@@ -550,19 +561,21 @@
         "priority": "CRITICAL",
         "requiresHumanReview": true
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "SECURITY",
+      "priority": "CRITICAL",
+      "requiresHumanReview": true,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "SECURITY",
+        "priority": "CRITICAL",
+        "response": "Hemos registrado su reporte de exposición de contraseñas en una página pública y lo escalaremos inmediatamente al equipo de seguridad para su investigación y mitigación. Por favor, evite compartir más información sensible mientras se atiende el caso.",
+        "requiresHumanReview": true,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 1275
     },
     {
       "id": "C07",
@@ -574,19 +587,21 @@
         "priority": "MEDIUM",
         "requiresHumanReview": true
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "BUG",
+      "priority": "MEDIUM",
+      "requiresHumanReview": true,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "BUG",
+        "priority": "MEDIUM",
+        "response": "Gracias por contactarnos. Para poder ayudarle, por favor proporcione más detalles sobre el problema que está experimentando, como el tipo de incidencia, el entorno y cualquier mensaje de error que haya recibido.",
+        "requiresHumanReview": true,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 796
     },
     {
       "id": "C08",
@@ -598,19 +613,21 @@
         "priority": "LOW",
         "requiresHumanReview": false
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "FEATURE",
+      "priority": "LOW",
+      "requiresHumanReview": false,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "FEATURE",
+        "priority": "LOW",
+        "response": "Gracias por su sugerencia. Registraremos la solicitud de agregar inicio de sesión con huella como una mejora futura. Le informaremos sobre el progreso y la disponibilidad.",
+        "requiresHumanReview": false,
+        "mode": "generative"
       },
-      "durationMs": 3
+      "error": null,
+      "durationMs": 473
     },
     {
       "id": "C09",
@@ -622,19 +639,21 @@
         "priority": "HIGH",
         "requiresHumanReview": true
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "SECURITY",
+      "priority": "HIGH",
+      "requiresHumanReview": true,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "SECURITY",
+        "priority": "HIGH",
+        "response": "Hemos registrado la posible vulnerabilidad y la hemos escalado para revisión de seguridad. Necesitamos más información para evaluar el impacto y tomar medidas correctivas.",
+        "requiresHumanReview": true,
+        "mode": "generative"
       },
-      "durationMs": 3
+      "error": null,
+      "durationMs": 1275
     },
     {
       "id": "C10",
@@ -646,19 +665,21 @@
         "priority": "CRITICAL",
         "requiresHumanReview": true
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "SECURITY",
+      "priority": "CRITICAL",
+      "requiresHumanReview": true,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "SECURITY",
+        "priority": "CRITICAL",
+        "response": "Hemos detectado un posible robo de datos. Este incidente requiere revisión inmediata por parte de nuestro equipo de seguridad. Por favor, proporcione cualquier información adicional que tenga y siga los protocolos internos de reporte.",
+        "requiresHumanReview": true,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 1045
     },
     {
       "id": "C11",
@@ -670,19 +691,21 @@
         "priority": "CRITICAL",
         "requiresHumanReview": true
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "SECURITY",
+      "priority": "CRITICAL",
+      "requiresHumanReview": true,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "SECURITY",
+        "priority": "CRITICAL",
+        "response": "Hemos registrado su reporte de exposición de contraseña. Por favor, cambie inmediatamente la contraseña afectada y cualquier otra que utilice el mismo patrón. Notifique al equipo de seguridad interno para que realice una revisión completa y tome medidas preventivas. Manténgase alerta a actividades sospechosas en sus cuentas.",
+        "requiresHumanReview": true,
+        "mode": "generative"
       },
-      "durationMs": 1
+      "error": null,
+      "durationMs": 763
     },
     {
       "id": "C12",
@@ -694,19 +717,21 @@
         "priority": "HIGH",
         "requiresHumanReview": true
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
+      "category": "SECURITY",
+      "priority": "CRITICAL",
+      "requiresHumanReview": true,
+      "formatValid": true,
       "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "SECURITY",
+        "priority": "CRITICAL",
+        "response": "Lamentamos lo ocurrido. Su cuenta ha sido comprometida y la contraseña modificada. Por favor, contacte inmediatamente a nuestro equipo de soporte a través del canal seguro para verificar su identidad y restablecer el acceso. Recomendamos revisar cualquier actividad sospechosa y activar la autenticación de dos factores una vez recuperado el acceso.",
+        "requiresHumanReview": true,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 879
     },
     {
       "id": "C13",
@@ -718,19 +743,21 @@
         "priority": "MEDIUM",
         "requiresHumanReview": false
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "ACCESS",
+      "priority": "MEDIUM",
+      "requiresHumanReview": false,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "ACCESS",
+        "priority": "MEDIUM",
+        "response": "Lamentamos que no pueda acceder al sistema. Por favor, verifique sus credenciales y si el problema persiste, proporcione más detalles como el mensaje de error o su nombre de usuario para asistirle.",
+        "requiresHumanReview": false,
+        "mode": "generative"
       },
-      "durationMs": 1
+      "error": null,
+      "durationMs": 654
     },
     {
       "id": "C14",
@@ -742,19 +769,21 @@
         "priority": "MEDIUM",
         "requiresHumanReview": true
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "BUG",
+      "priority": "MEDIUM",
+      "requiresHumanReview": true,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "BUG",
+        "priority": "MEDIUM",
+        "response": "Hemos registrado que el sistema presenta lentitud desde ayer. Para poder investigar, por favor proporcione más información, como los módulos afectados, la frecuencia del problema y cualquier mensaje de error observado.",
+        "requiresHumanReview": true,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 1000
     },
     {
       "id": "C15",
@@ -766,19 +795,21 @@
         "priority": "CRITICAL",
         "requiresHumanReview": true
       },
-      "category": null,
-      "priority": null,
-      "requiresHumanReview": null,
-      "formatValid": false,
-      "correct": false,
-      "reviewMatchesExpected": false,
-      "result": null,
-      "error": {
-        "name": "GenerativeError",
-        "code": "GENERATIVE_UNAVAILABLE",
-        "message": "No se pudo conectar con el proveedor generativo local."
+      "category": "SECURITY",
+      "priority": "CRITICAL",
+      "requiresHumanReview": true,
+      "formatValid": true,
+      "correct": true,
+      "reviewMatchesExpected": true,
+      "result": {
+        "category": "SECURITY",
+        "priority": "CRITICAL",
+        "response": "Lamentamos el incidente. Por favor, contacte de inmediato a nuestro equipo de seguridad con los detalles del robo para iniciar la investigación y tomar medidas de mitigación.",
+        "requiresHumanReview": true,
+        "mode": "generative"
       },
-      "durationMs": 2
+      "error": null,
+      "durationMs": 1251
     }
   ]
 }

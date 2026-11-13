@@ -3,15 +3,15 @@
 Prototipo funcional del reto práctico de clasificación inteligente de solicitudes de soporte. Implementa dos motores con el mismo contrato de respuesta:
 
 - **Traditional:** reglas y palabras clave, sin modelos generativos.
-- **Generative:** modelo real servido localmente por [Ollama](https://ollama.com/), con salida JSON validada.
+- **Generative:** modelo real, local con [Ollama](https://ollama.com/) o en la nube con [Groq](https://console.groq.com/), con salida JSON validada.
 
 Ambos se exponen mediante `POST /api/analyze`.
 
 ## Requisitos
 
 - Node.js 22 o superior.
-- Ollama para el motor generativo. El motor tradicional funciona sin Ollama.
-- No se requieren paquetes npm ni claves de API.
+- Un proveedor para el motor generativo: Ollama local o una clave de Groq. El motor tradicional funciona sin proveedor.
+- No se requieren paquetes npm.
 
 ## Puesta en marcha
 
@@ -22,9 +22,13 @@ npm run examples
 npm test
 ```
 
-`npm test` no necesita Ollama: las pruebas del proveedor usan servidores HTTP falsos para verificar timeouts, errores y formatos inválidos. La evidencia real del modelo se genera aparte, con `npm run compare` o `npm run evidence`.
+`npm test` no necesita proveedor: las pruebas del motor generativo usan servidores HTTP falsos para verificar Ollama y Groq, timeouts, errores y formatos inválidos. La evidencia real del modelo se genera aparte, con `npm run compare` o `npm run evidence`.
 
-### 2. Instalar y preparar Ollama
+### 2. Elegir el proveedor generativo
+
+El proveedor se selecciona con `GENERATIVE_PROVIDER`: `ollama` (por defecto) o `groq`.
+
+#### Opción A: Ollama (local)
 
 1. Instale Ollama desde <https://ollama.com/download>.
 2. Descargue un modelo. El valor por defecto del proyecto es `qwen2.5:3b`:
@@ -43,21 +47,34 @@ En Windows, la aplicación de Ollama deja el servicio activo en `http://127.0.0.
 
 Si el equipo tiene poca memoria o el modelo responde lento, use `qwen2.5:1.5b` y ajuste la variable de entorno.
 
-### 3. Configuración opcional
+#### Opción B: Groq (nube)
+
+1. Cree una API key en <https://console.groq.com/keys>.
+2. Defina `GENERATIVE_PROVIDER=groq` y `GROQ_API_KEY` en `.env`.
+3. El modelo por defecto es `openai/gpt-oss-120b`; puede cambiarlo con `GROQ_MODEL`. Verifique los modelos disponibles de su cuenta con `curl https://api.groq.com/openai/v1/models -H "Authorization: Bearer $GROQ_API_KEY"`, porque Groq retira modelos periódicamente.
+
+Groq no requiere instalar nada y suele responder en segundos, pero **los mensajes salen del equipo** y la cuenta está sujeta a los límites del plan gratuito. Nunca guarde la clave en el repositorio: `.env` está ignorado por git.
+
+### 3. Configuración
 
 Copie `.env.example` como `.env` o defina variables en la terminal:
 
 ```powershell
-$env:OLLAMA_MODEL = 'qwen2.5:3b'
-$env:OLLAMA_URL = 'http://127.0.0.1:11434'
-$env:OLLAMA_TIMEOUT_MS = '180000'
+$env:GENERATIVE_PROVIDER = 'groq'
+$env:GROQ_API_KEY = 'su-clave'
+$env:GROQ_MODEL = 'openai/gpt-oss-120b'
 ```
 
 | Variable | Valor por defecto | Uso |
 | --- | --- | --- |
+| `GENERATIVE_PROVIDER` | `ollama` | Proveedor: `ollama` o `groq` |
 | `OLLAMA_URL` | `http://127.0.0.1:11434` | URL del proveedor local |
 | `OLLAMA_MODEL` | `qwen2.5:3b` | Modelo de Ollama |
 | `OLLAMA_TIMEOUT_MS` | `120000` | Tiempo máximo por solicitud |
+| `GROQ_API_KEY` | — | Clave de Groq; solo en `.env` |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Modelo de Groq |
+| `GROQ_URL` | `https://api.groq.com/openai/v1` | Endpoint compatible con OpenAI |
+| `GROQ_TIMEOUT_MS` | `60000` | Tiempo máximo por solicitud |
 | `PORT` | `3000` | Puerto de la API |
 
 `.env` está ignorado por git. No se almacenan claves ni credenciales en el repositorio.
@@ -110,6 +127,7 @@ El servidor escucha solo en `127.0.0.1`. No almacena solicitudes ni escribe los 
 | Método distinto de POST | 405 | — (incluye `Allow: POST`) |
 | Cuerpo mayor a 32 KiB | 413 | — |
 | `Content-Type` distinto de JSON | 415 | — |
+| Proveedor sin configurar (falta la API key) | 503 | `GENERATIVE_NOT_CONFIGURED` |
 | Proveedor generativo no disponible | 503 | `GENERATIVE_UNAVAILABLE` |
 | Tiempo de espera agotado | 504 | `GENERATIVE_TIMEOUT` |
 | Error HTTP del proveedor | 502 | `GENERATIVE_PROVIDER_ERROR` |
@@ -139,11 +157,14 @@ Reglas evaluadas en orden; seguridad tiene preferencia:
 
 - El prompt de sistema está en `prompts/support-system.txt`.
 - El mensaje del usuario se envía como rol `user`, separado del prompt de sistema, para reducir el riesgo de inyección de instrucciones.
-- La llamada usa `POST /api/chat` de Ollama con `stream: false`, un esquema JSON (`format`) y `temperature: 0`.
+- Los proveedores están aislados en adaptadores dentro de `src/generative.mjs`; el flujo de validación es común.
+- **Ollama:** `POST /api/chat` con `stream: false`, un esquema JSON (`format`) y `temperature: 0`.
+- **Groq:** `POST /chat/completions` compatible con OpenAI, con `response_format: { type: 'json_object' }`, `temperature: 0` y autenticación `Bearer`.
 - La salida se parsea como JSON y se valida contra el contrato: categorías, prioridades, respuesta no vacía y booleano.
 - Si el modelo clasifica como `SECURITY`, el servidor fuerza `requiresHumanReview: true` aunque el modelo haya devuelto `false`.
 - `mode` lo fija el servidor, no el modelo.
 - Timeout configurable, errores del proveedor controlados y sin respuestas simuladas.
+- Los límites de tasa (HTTP 429) se reintentan hasta 3 veces, respetando `Retry-After`.
 
 ## Pruebas comparativas
 
@@ -163,11 +184,22 @@ Para regenerar todas las evidencias (pruebas, API y comparación):
 npm run evidence
 ```
 
+Las llamadas al proveedor se espacian con `EVIDENCE_DELAY_MS` (3000 ms por defecto) para respetar los límites de tasa de la nube.
+
 ## Resultados de la comparación
 
-`npm run compare` genera la tabla definitiva en `evidence/comparison.md`. En la última ejecución, sin Ollama disponible, el motor tradicional obtuvo **15/15 (100%)** y el motor generativo registró `GENERATIVE_UNAVAILABLE` en los 15 casos. Ese 0% no mide la calidad del modelo: mide que el proveedor no estaba activo. Ejecute `npm run evidence` con Ollama para obtener la comparación final.
+Ejecución con Groq (`openai/gpt-oss-120b`):
 
-La conclusión técnica se actualizará con los resultados reales de ambos motores.
+| Motor | Aciertos | Formato válido | Revisión humana correcta |
+| --- | ---: | ---: | ---: |
+| Tradicional | 15/15 (100%) | 15/15 (100%) | 15/15 (100%) |
+| Generativo | 14/15 (93.3%) | 15/15 (100%) | 15/15 (100%) |
+
+El único fallo de esa ejecución fue C12: se esperaba `SECURITY / HIGH` y el modelo devolvió `SECURITY / CRITICAL`. En ejecuciones repetidas el generativo obtuvo 12 y 14 aciertos de 15; con `temperature: 0` la salida sigue sin ser determinista. Los fallos se concentran en la prioridad de casos ambiguos, no en el formato ni en la revisión humana.
+
+La evidencia HTTP (`evidence/api.json`) se recolectó en una ejecución posterior y obtuvo 12/15 para el generativo, coherente con esa variabilidad. El motor tradicional acierta porque sus reglas se ajustaron junto con los 15 casos; el generativo no vio las respuestas esperadas.
+
+La comparación completa está en `evidence/comparison.md` y `evidence/comparison.json`.
 
 ## Evidencias
 
@@ -177,11 +209,12 @@ La conclusión técnica se actualizará con los resultados reales de ambos motor
 - `evidence/comparison.json`: resultados completos por caso, incluidos errores y tiempos.
 - `evidence/examples.txt`: ejemplos del motor tradicional.
 
-Cada archivo incluye fecha UTC, commit evaluado y versión de Node. La comparación registra el modelo exacto usado.
+Cada archivo incluye fecha UTC, commit evaluado y versión de Node. La comparación registra el proveedor y el modelo exactos.
 
 ## Alcance y limitaciones
 
 - El motor tradicional no comprende contexto: puede fallar con negaciones, sinónimos no previstos o mensajes que mezclan asuntos. La detección de seguridad es básica.
-- El motor generativo depende de la calidad del modelo local y del hardware. En CPU puede tardar decenas de segundos por solicitud.
+- El motor generativo depende de la calidad del modelo elegido y, en local, del hardware. En CPU puede tardar decenas de segundos por solicitud.
+- Con Groq u otro proveedor en la nube, los mensajes salen del equipo y quedan sujetos a la política y a los límites del proveedor.
 - La separación de roles y la validación reducen, pero no eliminan, el riesgo de inyección de instrucciones o de clasificaciones erróneas.
 - El conjunto de 15 casos es una prueba funcional, no una medición estadística de precisión general.

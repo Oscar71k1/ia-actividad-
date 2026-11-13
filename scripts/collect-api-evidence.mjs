@@ -9,6 +9,8 @@ import { createApp } from '../src/server.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const cases = JSON.parse(await readFile(new URL('../fixtures/support-cases.json', import.meta.url), 'utf8'));
 const config = getGenerativeConfig();
+const delayMs = Number(process.env.EVIDENCE_DELAY_MS ?? 3000);
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function currentCommit() {
   try {
@@ -34,7 +36,7 @@ const evidence = {
   commit: currentCommit(),
   node: process.version,
   endpoint,
-  provider: { type: 'ollama', model: config.model, baseUrl: config.baseUrl, timeoutMs: config.timeoutMs },
+  provider: { type: config.provider, label: config.label, model: config.model, baseUrl: config.baseUrl, timeoutMs: config.timeoutMs },
   cases: [],
   validation: [],
   routes: [],
@@ -68,6 +70,8 @@ try {
         durationMs: Date.now() - started,
       });
       console.log(`${testCase.id} ${mode.padEnd(10)} HTTP ${response?.status ?? 'ERR'}  ${evaluation.correct ? 'ACIERTO' : 'FALLO'}`);
+      // Espacia las llamadas al proveedor para respetar los límites de tasa.
+      if (mode === 'generative' && Number.isFinite(delayMs) && delayMs > 0) await pause(delayMs);
     }
   }
 

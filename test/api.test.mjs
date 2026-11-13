@@ -78,6 +78,7 @@ test('API HTTP: traduce errores del proveedor generativo', async (t) => {
   const statuses = {
     GENERATIVE_TIMEOUT: 504,
     GENERATIVE_UNAVAILABLE: 503,
+    GENERATIVE_NOT_CONFIGURED: 503,
     GENERATIVE_PROVIDER_ERROR: 502,
     GENERATIVE_INVALID_OUTPUT: 502,
   };
