@@ -1,5 +1,23 @@
 # Evidencias del avance
 
+## Capturas de los resultados
+
+Estas imágenes son capturas del navegador mostrando los resultados guardados de la ejecución real. Son vistas de evidencia, no capturas de una terminal ni de un motor generativo. Los archivos HTML incluidos permiten abrir las mismas vistas y los registros originales permiten verificar los datos.
+
+### Ejemplos del motor tradicional
+
+![Ocho ejemplos de clasificación](capturas/01-ejemplos.jpg)
+
+### Pruebas automatizadas
+
+![Diez pruebas aprobadas, cero fallos](capturas/02-pruebas.jpg)
+
+### Petición y respuesta HTTP
+
+![Petición y respuesta del motor tradicional mediante la API](capturas/03-api.jpg)
+
+## Registros originales
+
 Archivos obtenidos ejecutando el proyecto, sin respuestas generativas simuladas:
 
 - [examples.txt](examples.txt): salida completa de los ocho ejemplos del motor tradicional.
