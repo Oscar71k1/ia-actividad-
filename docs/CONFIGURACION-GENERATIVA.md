@@ -84,7 +84,7 @@ El servidor escucha solo en `127.0.0.1` y no registra los mensajes de los usuari
 Otros comandos útiles:
 
 ```sh
-npm test                 # 29 pruebas, sin proveedor ni modelo instalado
+npm test                 # 30 pruebas, sin proveedor ni modelo instalado
 npm run examples         # ejemplos del motor tradicional
 npm run examples:generative  # una llamada real al modelo configurado
 npm run compare          # compara ambos motores sobre los casos de referencia

@@ -189,9 +189,16 @@ Las llamadas al proveedor se espacian con `EVIDENCE_DELAY_MS` (3000 ms por defec
 
 ## Resultados de la comparación
 
-Los resultados de la última ejecución real están en `evidence/comparison.md` y `evidence/comparison.json`: incluyen proveedor, modelo, fecha, commit, aciertos, formato, revisión humana, errores y tiempos por caso. La evidencia HTTP correspondiente está en `evidence/api.json`.
+Ejecución con Groq (`openai/gpt-oss-120b`):
 
-El conjunto de referencia son los diez mensajes originales de `fixtures/support-cases.json`, definidos antes de evaluar y sin cambios posteriores. Con `temperature: 0` la salida del modelo sigue sin ser determinista, por lo que los porcentajes pueden variar entre ejecuciones.
+| Motor | Aciertos | Formato válido | Revisión humana correcta |
+| --- | ---: | ---: | ---: |
+| Tradicional | 10/10 (100%) | 10/10 (100%) | 10/10 (100%) |
+| Generativo | 9/10 (90%) | 10/10 (100%) | 9/10 (90%) |
+
+En `evidence/comparison.json` el único fallo fue C04: se esperaba `BUG / HIGH` y el modelo devolvió `BUG / MEDIUM`. En la captura HTTP posterior (`evidence/api.json`) el fallo fue C09: `SECURITY / MEDIUM` en vez de `SECURITY / HIGH`, con revisión humana correcta. No hubo errores del proveedor ni respuestas inventadas.
+
+Los resultados completos, con proveedor, modelo, fecha, commit y tiempos por caso, están en `evidence/comparison.md` y `evidence/comparison.json`. El conjunto de referencia son los diez mensajes originales de `fixtures/support-cases.json`, definidos antes de evaluar y sin cambios posteriores. Con `temperature: 0` la salida del modelo sigue sin ser determinista, por lo que los porcentajes pueden variar entre ejecuciones.
 
 ## Evidencias
 
