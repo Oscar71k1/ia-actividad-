@@ -5,6 +5,13 @@ Prototipo funcional del reto práctico de clasificación inteligente de solicitu
 - **Traditional:** reglas y palabras clave, sin modelos generativos.
 - **Generative:** modelo real, local con [Ollama](https://ollama.com/) o en la nube con [Groq](https://console.groq.com/), con salida JSON validada.
 
+## Integrantes
+
+- Oscar Flores Cerqueda
+- Oscar Yael Hernandez Rodriguez
+
+También disponibles en [integrantes.txt](integrantes.txt).
+
 Ambos se exponen mediante `POST /api/analyze`.
 
 ## Requisitos
@@ -161,7 +168,7 @@ Reglas evaluadas en orden; seguridad tiene preferencia:
 - **Ollama:** `POST /api/chat` con `stream: false`, un esquema JSON (`format`) y `temperature: 0`.
 - **Groq:** `POST /chat/completions` compatible con OpenAI, con `response_format: { type: 'json_object' }`, `temperature: 0` y autenticación `Bearer`.
 - La salida se parsea como JSON y se valida contra el contrato: categorías, prioridades, respuesta no vacía y booleano.
-- Si el modelo clasifica como `SECURITY`, el servidor fuerza `requiresHumanReview: true` aunque el modelo haya devuelto `false`.
+- El servidor fuerza `requiresHumanReview: true` si el modelo clasifica como `SECURITY` **o si el mensaje original contiene indicios de seguridad**, aunque el modelo haya devuelto `FEATURE` y `false`.
 - `mode` lo fija el servidor, no el modelo.
 - Timeout configurable, errores del proveedor controlados y sin respuestas simuladas.
 - Los límites de tasa (HTTP 429) se reintentan hasta 3 veces, respetando `Retry-After`.
@@ -200,6 +207,10 @@ El único fallo de esa ejecución fue C12: se esperaba `SECURITY / HIGH` y el mo
 La evidencia HTTP (`evidence/api.json`) se recolectó en una ejecución posterior y obtuvo 12/15 para el generativo, coherente con esa variabilidad. El motor tradicional acierta porque sus reglas se ajustaron junto con los 15 casos; el generativo no vio las respuestas esperadas.
 
 La comparación completa está en `evidence/comparison.md` y `evidence/comparison.json`.
+
+## Conclusión técnica
+
+El motor tradicional alcanzó 15/15 porque sus reglas se ajustaron al conjunto de referencia; es predecible, auditable y adecuado para señales conocidas, pero limitado ante lenguaje nuevo y contexto. El generativo obtuvo 14/15, con formato y revisión humana correctos en 15/15, y aporta respuestas más contextuales a costa de variabilidad, latencia y dependencia del proveedor. La arquitectura reduce ese riesgo al separar roles, validar el contrato, imponer timeout y no exponer errores internos. Además, la revisión humana se activa tanto por la categoría del modelo como por indicios de seguridad en el mensaje original, evitando que una instrucción adversarial desactive la salvaguarda. Para producción conviene ampliar el conjunto de evaluación, revisar falsos positivos y monitorizar proveedor, tiempos y tasas de error.
 
 ## Evidencias
 

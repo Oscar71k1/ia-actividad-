@@ -158,6 +158,18 @@ function parseModelJson(content) {
   }
 }
 
+// El proveedor puede ignorar el prompt o seguir una instrucción incluida en el
+// mensaje. La revisión humana no depende exclusivamente de su categoría: si la
+// solicitud original describe un posible incidente, se conserva la salvaguarda.
+function hasSecuritySignal(message) {
+  const text = message.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  return /\b(vulnerabilidad(?:es)?|hackeo|hackeado|hackeada|hackear|phishing|malware|ransomware|filtracion(?:es)?|robo de (?:datos|informacion|credenciales)|robaron (?:mis |los |nuestros )?(?:datos|informacion|credenciales|cuenta)|datos (?:esta |estan |fue |fueron |han sido )?expuestos|informacion (?:esta |estan |fue |fueron |han sido )?expuesta|contrasenas? (?:esta |estan |fue |fueron |han sido )?expuestas?|credenciales (?:esta |estan |fue |fueron |han sido )?expuestas|acceso no autorizado|acceso indebido|brecha (?:de )?(?:datos|seguridad)|incidente de seguridad|cuenta comprometida|sistema comprometido|exposicion de datos|entraron sin permiso)\b/.test(text);
+}
+
+function isTimeout(error) {
+  return error?.name === 'TimeoutError' || error?.name === 'AbortError';
+}
+
 /**
  * Resuelve proveedor y parámetros para una llamada. Las opciones explícitas
  * (usadas en pruebas) tienen prioridad sobre el entorno.
@@ -237,7 +249,7 @@ export async function analyzeGenerative(message, options = {}) {
         signal: AbortSignal.timeout(target.timeoutMs),
       });
     } catch (error) {
-      if (error?.name === 'TimeoutError' || error?.name === 'AbortError') {
+      if (isTimeout(error)) {
         throw new GenerativeError('GENERATIVE_TIMEOUT', `${provider.label} no respondió en ${target.timeoutMs} ms.`, 504);
       }
       throw new GenerativeError('GENERATIVE_UNAVAILABLE', `No se pudo conectar con ${provider.label}.`, 503);
@@ -256,7 +268,12 @@ export async function analyzeGenerative(message, options = {}) {
   let payload;
   try {
     payload = await response.json();
-  } catch {
+  } catch (error) {
+    // fetch puede resolver al recibir cabeceras y abortar después mientras
+    // response.json() aún consume el cuerpo.
+    if (isTimeout(error)) {
+      throw new GenerativeError('GENERATIVE_TIMEOUT', `${provider.label} no respondió en ${target.timeoutMs} ms.`, 504);
+    }
     throw new GenerativeError('GENERATIVE_INVALID_OUTPUT', 'La respuesta del proveedor no es JSON.', 502);
   }
 
@@ -267,7 +284,11 @@ export async function analyzeGenerative(message, options = {}) {
 
   const parsed = parseModelJson(content);
   try {
-    return validateAnalysis(parsed, { mode: 'generative' });
+    const analysis = validateAnalysis(parsed, { mode: 'generative' });
+    return {
+      ...analysis,
+      requiresHumanReview: analysis.requiresHumanReview || hasSecuritySignal(message),
+    };
   } catch (error) {
     if (error instanceof ModelOutputError) {
       throw new GenerativeError('GENERATIVE_INVALID_OUTPUT', error.message, 502);
