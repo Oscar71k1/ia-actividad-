@@ -30,6 +30,7 @@ La URL y el timeout de cada proveedor se configuran por separado: `OLLAMA_URL`, 
 - Se comprueban campos, tipos y valores permitidos.
 - `response` debe ser un texto no vacío y de máximo 4000 caracteres.
 - Si la categoría es `SECURITY`, se fuerza `requiresHumanReview: true`.
+- `needsSecurityReview()` examina el mensaje original y fuerza la revisión humana ante señales de seguridad aunque el modelo haya sido engañado y devuelto otra categoría; la decisión no depende solo del prompt.
 - El servidor fija `mode: "generative"`; no confía en el valor devuelto por el modelo.
 - Los errores del proveedor se traducen a HTTP 502, 503 o 504 con códigos estables.
 - Si falta la API key de Groq, la API responde 503 con `GENERATIVE_NOT_CONFIGURED`.
@@ -62,8 +63,8 @@ y ejecute los mismos comandos (`npm start`, `npm run examples:generative`, `npm 
 
 ## Comparación
 
-`fixtures/support-cases.json` define 15 solicitudes con su clasificación de referencia: normales, ambiguas, adversariales y variantes de seguridad. `scripts/compare.mjs` ejecuta ambos motores, calcula el porcentaje de acierto (categoría y prioridad), registra formato y revisión humana, y escribe `evidence/comparison.json` y `evidence/comparison.md`. Un fallo del proveedor cuenta como caso no acertado.
+`fixtures/support-cases.json` define 10 solicitudes con su clasificación de referencia: normales, ambiguas y adversariales. `scripts/compare.mjs` ejecuta ambos motores, calcula el porcentaje de acierto (categoría y prioridad), registra formato y revisión humana, y escribe `evidence/comparison.json` y `evidence/comparison.md`. Un fallo del proveedor cuenta como caso no acertado. La configuración detallada del motor generativo está en `docs/CONFIGURACION-GENERATIVA.md`.
 
 ## Limitaciones
 
-Un modelo local puede tardar decenas de segundos por solicitud en CPU. Un proveedor en la nube añade dependencia de red, cuota y privacidad: los mensajes salen del equipo. La separación de roles y la validación reducen el riesgo de inyección de instrucciones, pero no lo eliminan. Los 15 casos son una prueba funcional, no una medida de precisión general.
+Un modelo local puede tardar decenas de segundos por solicitud en CPU. Un proveedor en la nube añade dependencia de red, cuota y privacidad: los mensajes salen del equipo. La separación de roles, la validación y la comprobación independiente de seguridad reducen el riesgo de inyección de instrucciones, pero no lo eliminan. Los 10 casos son una prueba funcional, no una medida de precisión general.

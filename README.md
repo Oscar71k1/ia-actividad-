@@ -155,20 +155,21 @@ Reglas evaluadas en orden; seguridad tiene preferencia:
 
 ## Motor generativo
 
+- La configuración detallada (instalación, variables, comandos y fallos frecuentes) está en `docs/CONFIGURACION-GENERATIVA.md`.
 - El prompt de sistema está en `prompts/support-system.txt`.
 - El mensaje del usuario se envía como rol `user`, separado del prompt de sistema, para reducir el riesgo de inyección de instrucciones.
 - Los proveedores están aislados en adaptadores dentro de `src/generative.mjs`; el flujo de validación es común.
 - **Ollama:** `POST /api/chat` con `stream: false`, un esquema JSON (`format`) y `temperature: 0`.
 - **Groq:** `POST /chat/completions` compatible con OpenAI, con `response_format: { type: 'json_object' }`, `temperature: 0` y autenticación `Bearer`.
 - La salida se parsea como JSON y se valida contra el contrato: categorías, prioridades, respuesta no vacía y booleano.
-- Si el modelo clasifica como `SECURITY`, el servidor fuerza `requiresHumanReview: true` aunque el modelo haya devuelto `false`.
+- Si el modelo clasifica como `SECURITY`, el servidor fuerza `requiresHumanReview: true` aunque el modelo haya devuelto `false`. Además, una comprobación independiente sobre el mensaje original fuerza la revisión humana ante señales de incidente de seguridad, aunque un mensaje adversario logre que el modelo responda otra categoría.
 - `mode` lo fija el servidor, no el modelo.
 - Timeout configurable, errores del proveedor controlados y sin respuestas simuladas.
 - Los límites de tasa (HTTP 429) se reintentan hasta 3 veces, respetando `Retry-After`.
 
 ## Pruebas comparativas
 
-`fixtures/support-cases.json` contiene **15 solicitudes**: normales, ambiguas, adversariales y variantes de seguridad. La clasificación de referencia se definió antes de ejecutar la comparación.
+`fixtures/support-cases.json` contiene **10 solicitudes**: normales, ambiguas y adversariales. La clasificación de referencia se definió antes de ejecutar la comparación y no se ha modificado desde entonces.
 
 Ejecute ambos motores sobre todos los casos:
 
@@ -188,18 +189,9 @@ Las llamadas al proveedor se espacian con `EVIDENCE_DELAY_MS` (3000 ms por defec
 
 ## Resultados de la comparación
 
-Ejecución con Groq (`openai/gpt-oss-120b`):
+Los resultados de la última ejecución real están en `evidence/comparison.md` y `evidence/comparison.json`: incluyen proveedor, modelo, fecha, commit, aciertos, formato, revisión humana, errores y tiempos por caso. La evidencia HTTP correspondiente está en `evidence/api.json`.
 
-| Motor | Aciertos | Formato válido | Revisión humana correcta |
-| --- | ---: | ---: | ---: |
-| Tradicional | 15/15 (100%) | 15/15 (100%) | 15/15 (100%) |
-| Generativo | 14/15 (93.3%) | 15/15 (100%) | 15/15 (100%) |
-
-El único fallo de esa ejecución fue C12: se esperaba `SECURITY / HIGH` y el modelo devolvió `SECURITY / CRITICAL`. En ejecuciones repetidas el generativo obtuvo 12 y 14 aciertos de 15; con `temperature: 0` la salida sigue sin ser determinista. Los fallos se concentran en la prioridad de casos ambiguos, no en el formato ni en la revisión humana.
-
-La evidencia HTTP (`evidence/api.json`) se recolectó en una ejecución posterior y obtuvo 12/15 para el generativo, coherente con esa variabilidad. El motor tradicional acierta porque sus reglas se ajustaron junto con los 15 casos; el generativo no vio las respuestas esperadas.
-
-La comparación completa está en `evidence/comparison.md` y `evidence/comparison.json`.
+El conjunto de referencia son los diez mensajes originales de `fixtures/support-cases.json`, definidos antes de evaluar y sin cambios posteriores. Con `temperature: 0` la salida del modelo sigue sin ser determinista, por lo que los porcentajes pueden variar entre ejecuciones.
 
 ## Evidencias
 
@@ -217,4 +209,4 @@ Cada archivo incluye fecha UTC, commit evaluado y versión de Node. La comparaci
 - El motor generativo depende de la calidad del modelo elegido y, en local, del hardware. En CPU puede tardar decenas de segundos por solicitud.
 - Con Groq u otro proveedor en la nube, los mensajes salen del equipo y quedan sujetos a la política y a los límites del proveedor.
 - La separación de roles y la validación reducen, pero no eliminan, el riesgo de inyección de instrucciones o de clasificaciones erróneas.
-- El conjunto de 15 casos es una prueba funcional, no una medición estadística de precisión general.
+- El conjunto de 10 casos es una prueba funcional, no una medición estadística de precisión general.

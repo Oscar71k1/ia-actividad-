@@ -76,6 +76,20 @@ export function validateAnalysis(value, { mode } = {}) {
   };
 }
 
+/**
+ * Señales textuales de un posible incidente de seguridad. Se usan como red de
+ * seguridad en el motor generativo: la decisión de revisar no depende solo de
+ * que el modelo siga el prompt ni de la categoría que él devuelva.
+ */
+const SECURITY_REVIEW_PATTERN = /\b(vulnerabilidad(?:es)?|hackeo|hackead[oa]s?|hackearon|hackeando|phishing|malware|ransomware|filtracion(?:es)?|robo de (?:datos|informacion|credenciales)|robaron (?:mis |los |nuestros )?(?:datos|informacion|credenciales|cuenta)|datos (?:esta |estan |fue |fueron |han sido )?expuestos?|informacion (?:esta |estan |fue |fueron |han sido )?expuesta|contrasenas? (?:esta |estan |fue |fueron |han sido )?expuestas?|credenciales (?:esta |estan |fue |fueron |han sido )?expuestas|acceso no autorizado|acceso indebido|brecha (?:de )?(?:datos|seguridad)|incidente de seguridad|cuenta comprometida|sistema comprometido|exposicion de datos|entraron sin permiso)\b/;
+
+/** Indica si el mensaje original menciona un posible incidente de seguridad. */
+export function needsSecurityReview(message) {
+  if (typeof message !== 'string') return false;
+  const text = message.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  return SECURITY_REVIEW_PATTERN.test(text);
+}
+
 /** Indica si un resultado cumple el formato, sin lanzar excepciones. */
 export function isValidAnalysis(value, options) {
   try {

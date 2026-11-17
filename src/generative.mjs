@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { loadEnvFile } from 'node:process';
 import { fileURLToPath } from 'node:url';
-import { CATEGORIES, MAX_MESSAGE_LENGTH, ModelOutputError, PRIORITIES, validateAnalysis } from './contract.mjs';
+import { CATEGORIES, MAX_MESSAGE_LENGTH, ModelOutputError, PRIORITIES, needsSecurityReview, validateAnalysis } from './contract.mjs';
 
 // Carga opcional de .env (ignorado por git) sin depender de paquetes externos.
 const envFile = fileURLToPath(new URL('../.env', import.meta.url));
@@ -266,12 +266,20 @@ export async function analyzeGenerative(message, options = {}) {
   }
 
   const parsed = parseModelJson(content);
+  let validated;
   try {
-    return validateAnalysis(parsed, { mode: 'generative' });
+    validated = validateAnalysis(parsed, { mode: 'generative' });
   } catch (error) {
     if (error instanceof ModelOutputError) {
       throw new GenerativeError('GENERATIVE_INVALID_OUTPUT', error.message, 502);
     }
     throw error;
   }
+
+  // Red de seguridad: un mensaje que describe un incidente de seguridad se
+  // envía a revisión aunque el modelo haya sido engañado y devuelto otra
+  // categoría con requiresHumanReview: false.
+  return needsSecurityReview(message)
+    ? { ...validated, requiresHumanReview: true }
+    : validated;
 }
