@@ -1,8 +1,11 @@
+import { MAX_MESSAGE_LENGTH } from './contract.mjs';
+
 // Las reglas se evalúan en orden: seguridad siempre tiene preferencia.
+// El texto se normaliza sin acentos y en minúsculas antes de comparar.
 const RULES = [
   {
     category: 'SECURITY',
-    pattern: /\b(vulnerabilidad(?:es)?|hackeo|hackeado|phishing|malware|ransomware|filtracion|filtraciones|robo de datos|datos expuestos|acceso no autorizado|contrasenas expuestas)\b/,
+    pattern: /\b(vulnerabilidad(?:es)?|hackeo|hackeado|hackeada|hackeados|hackeadas|hackear|hackearon|hackeando|phishing|malware|ransomware|filtracion(?:es)?|robo de (?:datos|informacion|credenciales)|robaron (?:mis |los |nuestros )?(?:datos|informacion|credenciales|cuenta)|datos (?:esta |estan |fue |fueron |han sido )?expuestos|informacion (?:esta |estan |fue |fueron |han sido )?expuesta|contrasenas? (?:esta |estan |fue |fueron |han sido )?expuestas?|credenciales (?:esta |estan |fue |fueron |han sido )?expuestas|acceso no autorizado|acceso indebido|brecha (?:de )?(?:datos|seguridad)|incidente de seguridad|cuenta comprometida|sistema comprometido|exposicion de datos|entraron sin permiso)\b/,
     priority: 'HIGH',
     response: 'Gracias por reportar este posible incidente de seguridad. Evite compartir contraseñas o datos sensibles. El caso requiere revisión del equipo de seguridad.',
   },
@@ -26,13 +29,13 @@ const RULES = [
   },
 ];
 
-const CRITICAL_SECURITY = /\b(robo de datos|datos expuestos|contrasenas expuestas|ransomware|filtracion activa)\b/;
+const CRITICAL_SECURITY = /\b(robo de (?:datos|informacion|credenciales)|robaron (?:mis |los |nuestros )?(?:datos|informacion|credenciales)|datos (?:esta |estan |fue |fueron |han sido )?expuestos|informacion (?:esta |estan |fue |fueron |han sido )?expuesta|contrasenas? (?:esta |estan |fue |fueron |han sido )?expuestas?|credenciales (?:esta |estan |fue |fueron |han sido )?expuestas|ransomware|filtracion activa|brecha de datos|exposicion de datos)\b/;
 const HIGH_IMPACT = /\b(urgente|todos los usuarios|toda la empresa|produccion|bloquea el trabajo)\b/;
 
 /** Clasifica un mensaje sin usar modelos generativos ni servicios externos. */
 export function analyzeTraditional(message) {
-  if (typeof message !== 'string' || !message.trim() || message.length > 5000) {
-    throw new TypeError('El mensaje debe ser un texto de entre 1 y 5000 caracteres y no estar vacío.');
+  if (typeof message !== 'string' || !message.trim() || message.length > MAX_MESSAGE_LENGTH) {
+    throw new TypeError(`El mensaje debe ser un texto de entre 1 y ${MAX_MESSAGE_LENGTH} caracteres y no estar vacío.`);
   }
 
   const text = message.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();

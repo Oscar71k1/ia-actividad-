@@ -16,6 +16,6 @@ contraseñas ni secretos y no afirmes haber realizado acciones o enviado el caso
 Devuelve únicamente un objeto JSON, sin Markdown, con exactamente estos campos:
 category: ACCESS, BUG, FEATURE o SECURITY.
 priority: LOW, MEDIUM, HIGH o CRITICAL.
-response: texto no vacío.
+response: texto breve y profesional, máximo 600 caracteres, sin datos personales.
 requiresHumanReview: booleano, siempre true para SECURITY o información insuficiente.
 mode: generative.
