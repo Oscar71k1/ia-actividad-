@@ -7,12 +7,23 @@ Prototipo funcional del reto práctico de clasificación inteligente de solicitu
 
 ## Integrantes
 
-- Oscar Flores Cerqueda
 - Oscar Yael Hernandez Rodriguez
+- Axel Eduardo Sanchez Ventura
+- Oscar Flores Cerqueda
 
 También disponibles en [integrantes.txt](integrantes.txt).
 
-Ambos se exponen mediante `POST /api/analyze`.
+### Aportaciones de cada integrante
+
+| Integrante | Aportaciones |
+| --- | --- |
+| Oscar Flores Cerqueda | Desarrollo del avance inicial: motor tradicional con reglas para las cuatro categorías, prioridades y respuestas predeterminadas; API inicial con validación de solicitudes; ejemplos, pruebas y evidencias del avance. Preparación de casos de referencia y documentación del proyecto. |
+| Oscar Yael Hernandez Rodriguez | Integración del motor generativo con Ollama y Groq, configuración de proveedores, validación de respuestas JSON y manejo de errores. Ampliación de pruebas, automatización de la comparación y recopilación de resultados de ambos motores. |
+| Axel Sanchez Ventura | Revisión y corrección de los problemas detectados en la integración generativa. Creación de la rama `codex/pr3-fixes`, incorporación de revisión humana por indicios de seguridad en el mensaje original, corrección del timeout durante la lectura de respuestas, pruebas de regresión y resolución de conflictos con `main`. |
+
+Las aportaciones describen el trabajo realizado; las limitaciones técnicas y los resultados de evaluación se documentan en las secciones correspondientes.
+
+## Estado del proyecto
 
 ## Requisitos
 
