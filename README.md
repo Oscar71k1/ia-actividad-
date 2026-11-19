@@ -1,8 +1,9 @@
 # AI Support Engine
 
-Prototipo funcional del reto práctico de clasificación inteligente de solicitudes de soporte. Implementa dos motores con el mismo contrato de respuesta:
+Prototipo funcional del reto práctico de clasificación inteligente de solicitudes de soporte. Implementa tres motores con el mismo contrato de respuesta:
 
 - **Traditional:** reglas y palabras clave, sin modelos generativos.
+- **ML:** TF-IDF y regresión logística entrenados desde un CSV, en JavaScript puro.
 - **Generative:** modelo real, local con [Ollama](https://ollama.com/) o en la nube con [Groq](https://console.groq.com/), con salida JSON validada.
 
 ## Integrantes
@@ -29,18 +30,19 @@ Las aportaciones describen el trabajo realizado; las limitaciones técnicas y lo
 
 - Node.js 22 o superior.
 - Un proveedor para el motor generativo: Ollama local o una clave de Groq. El motor tradicional funciona sin proveedor.
-- No se requieren paquetes npm.
+- No se requieren paquetes npm. El motor ML no requiere Python ni pandas: está implementado en JavaScript.
 
 ## Puesta en marcha
 
-### 1. Motor tradicional y pruebas
+### 1. Motores locales y pruebas
 
 ```sh
 npm run examples
+npm run examples:ml
 npm test
 ```
 
-`npm test` no necesita proveedor: las pruebas del motor generativo usan servidores HTTP falsos para verificar Ollama y Groq, timeouts, errores y formatos inválidos. La evidencia real del modelo se genera aparte, con `npm run compare` o `npm run evidence`.
+`npm run examples:ml` entrena con `fixtures/tickets.csv`, imprime el informe de clasificación y clasifica un mensaje de ejemplo. `npm test` no necesita proveedor: las pruebas del motor generativo usan servidores HTTP falsos para verificar Ollama y Groq, timeouts, errores y formatos inválidos. La evidencia real del modelo se genera aparte, con `npm run compare` o `npm run evidence`.
 
 ### 2. Elegir el proveedor generativo
 
@@ -114,6 +116,10 @@ Invoke-RestMethod -Uri http://127.0.0.1:3000/api/analyze -Method Post -ContentTy
 # Motor generativo
 $body = @{ message = 'No puedo iniciar sesión'; mode = 'generative' } | ConvertTo-Json
 Invoke-RestMethod -Uri http://127.0.0.1:3000/api/analyze -Method Post -ContentType 'application/json' -Body $body
+
+# Motor ML
+$body = @{ message = 'Alguien entró a mi cuenta sin autorización'; mode = 'ml' } | ConvertTo-Json
+Invoke-RestMethod -Uri http://127.0.0.1:3000/api/analyze -Method Post -ContentType 'application/json' -Body $body
 ```
 
 El servidor escucha solo en `127.0.0.1`. No almacena solicitudes ni escribe los mensajes en registros.
@@ -134,7 +140,7 @@ El servidor escucha solo en `127.0.0.1`. No almacena solicitudes ni escribe los 
 - `priority`: `LOW`, `MEDIUM`, `HIGH` o `CRITICAL`.
 - `response`: texto no vacío.
 - `requiresHumanReview`: booleano. Siempre es `true` para `SECURITY`.
-- `mode`: `traditional` o `generative`, fijado por el servidor.
+- `mode`: `traditional`, `ml` o `generative`, fijado por el servidor.
 
 ### Errores
 
@@ -170,6 +176,25 @@ Reglas evaluadas en orden; seguridad tiene preferencia:
 - Fallas o accesos con «todos los usuarios», «toda la empresa», «producción» o «urgente» reciben `HIGH`.
 - Sin coincidencias se devuelve `BUG` provisional, `MEDIUM` y revisión humana.
 - Cada categoría tiene una respuesta predeterminada; no se ejecuta ninguna acción real.
+
+## Motor ML (TF-IDF + regresión logística)
+
+Adaptación del script de Python a JavaScript puro, sin pandas ni scikit-learn:
+
+| Código Python original | Equivalente en este proyecto |
+| --- | --- |
+| `pd.read_csv("tickets.csv")` | `loadTickets()` lee `fixtures/tickets.csv` (columnas `message,category`). |
+| `train_test_split(..., test_size=0.2, stratify=..., random_state=42)` | `trainTestSplit()` estratificado y determinista con semilla 42. |
+| `TfidfVectorizer(ngram_range=(1, 2))` | `TfidfVectorizer` con unigramas y bigramas, IDF suavizado y normalización L2. |
+| `LogisticRegression(max_iter=1000)` | `LogisticRegression` softmax con descenso de gradiente y 800 épocas. |
+| `classification_report` | `evaluateModel()` y `formatClassificationReport()`. |
+| `model.predict([...])` | `analyzeMl()` devuelve además `priority`, `response` y `requiresHumanReview` según el contrato del proyecto. |
+
+- Los datos etiquetados están en `fixtures/tickets.csv` (80 tickets, 20 por categoría).
+- El modelo se entrena una sola vez, de forma perezosa, y se reutiliza en todas las peticiones.
+- La categoría predicha se convierte al contrato usando las mismas reglas de prioridad y respuestas del motor tradicional; `SECURITY` siempre exige revisión humana, y también una predicción con confianza menor a 0.6.
+- Se ejecuta con `npm run examples:ml` y se expone en la API con `"mode": "ml"`.
+- Detalles y resultados: [docs/motor-ml.md](docs/motor-ml.md).
 
 ## Motor generativo
 
@@ -240,3 +265,4 @@ Cada archivo incluye fecha UTC, commit evaluado y versión de Node. La comparaci
 - Con Groq u otro proveedor en la nube, los mensajes salen del equipo y quedan sujetos a la política y a los límites del proveedor.
 - La separación de roles y la validación reducen, pero no eliminan, el riesgo de inyección de instrucciones o de clasificaciones erróneas.
 - El conjunto de 15 casos es una prueba funcional, no una medición estadística de precisión general.
+- El motor ML se entrena con 80 tickets de ejemplo: sus métricas son ilustrativas y no sustituyen un conjunto de evaluación mayor.

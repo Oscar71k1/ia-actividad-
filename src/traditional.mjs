@@ -32,13 +32,30 @@ const RULES = [
 const CRITICAL_SECURITY = /\b(robo de (?:datos|informacion|credenciales)|robaron (?:mis |los |nuestros )?(?:datos|informacion|credenciales)|datos (?:esta |estan |fue |fueron |han sido )?expuestos|informacion (?:esta |estan |fue |fueron |han sido )?expuesta|contrasenas? (?:esta |estan |fue |fueron |han sido )?expuestas?|credenciales (?:esta |estan |fue |fueron |han sido )?expuestas|ransomware|filtracion activa|brecha de datos|exposicion de datos)\b/;
 const HIGH_IMPACT = /\b(urgente|todos los usuarios|toda la empresa|produccion|bloquea el trabajo)\b/;
 
+/** Respuesta predeterminada de cada categoría, reutilizada por el motor ML. */
+export const CATEGORY_RESPONSES = Object.fromEntries(
+  RULES.map(({ category, response }) => [category, response]),
+);
+
+/** Prioridad del contrato para una categoría y un texto ya normalizados. */
+export function priorityFor(category, text) {
+  if (category === 'SECURITY' && CRITICAL_SECURITY.test(text)) return 'CRITICAL';
+  if (['ACCESS', 'BUG'].includes(category) && HIGH_IMPACT.test(text)) return 'HIGH';
+  return RULES.find((rule) => rule.category === category)?.priority ?? 'MEDIUM';
+}
+
+/** Normaliza el texto igual que las reglas: sin acentos y en minúsculas. */
+export function normalizeText(text) {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
 /** Clasifica un mensaje sin usar modelos generativos ni servicios externos. */
 export function analyzeTraditional(message) {
   if (typeof message !== 'string' || !message.trim() || message.length > MAX_MESSAGE_LENGTH) {
     throw new TypeError(`El mensaje debe ser un texto de entre 1 y ${MAX_MESSAGE_LENGTH} caracteres y no estar vacío.`);
   }
 
-  const text = message.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const text = normalizeText(message);
   const rule = RULES.find(({ pattern }) => pattern.test(text));
 
   // El contrato exige una categoría. Los mensajes sin coincidencias se derivan
@@ -53,16 +70,9 @@ export function analyzeTraditional(message) {
     };
   }
 
-  let priority = rule.priority;
-  if (rule.category === 'SECURITY' && CRITICAL_SECURITY.test(text)) {
-    priority = 'CRITICAL';
-  } else if (['ACCESS', 'BUG'].includes(rule.category) && HIGH_IMPACT.test(text)) {
-    priority = 'HIGH';
-  }
-
   return {
     category: rule.category,
-    priority,
+    priority: priorityFor(rule.category, text),
     response: rule.response,
     requiresHumanReview: rule.category === 'SECURITY',
     mode: 'traditional',
