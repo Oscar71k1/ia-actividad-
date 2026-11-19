@@ -1,6 +1,6 @@
 export const CATEGORIES = ['ACCESS', 'BUG', 'FEATURE', 'SECURITY'];
 export const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
-export const MODES = ['traditional', 'generative'];
+export const MODES = ['traditional', 'generative', 'ml'];
 export const MAX_MESSAGE_LENGTH = 5000;
 export const MAX_RESPONSE_LENGTH = 4000;
 
@@ -37,7 +37,7 @@ export function parseAnalyzeRequest(data) {
     throw new RequestError(`message no puede superar ${MAX_MESSAGE_LENGTH} caracteres.`);
   }
   if (!MODES.includes(data.mode)) {
-    throw new RequestError('mode debe ser traditional o generative.');
+    throw new RequestError('mode debe ser traditional, generative o ml.');
   }
   return { message: data.message, mode: data.mode };
 }

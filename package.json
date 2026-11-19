@@ -7,6 +7,7 @@
     "start": "node src/server.mjs",
     "examples": "node examples/traditional.mjs",
     "examples:generative": "node examples/generative.mjs",
+    "examples:ml": "node examples/ml.mjs",
     "test": "node --test",
     "compare": "node scripts/compare.mjs",
     "evidence:api": "node scripts/collect-api-evidence.mjs",

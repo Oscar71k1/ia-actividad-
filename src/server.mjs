@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
 import { parseAnalyzeRequest, RequestError } from './contract.mjs';
 import { analyzeGenerative, GenerativeError, getGenerativeConfig } from './generative.mjs';
+import { analyzeMl } from './ml.mjs';
 import { analyzeTraditional } from './traditional.mjs';
 
 const MAX_BODY_BYTES = 32 * 1024;
@@ -16,7 +17,7 @@ function reply(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
-export function createApp({ generative = analyzeGenerative } = {}) {
+export function createApp({ generative = analyzeGenerative, ml = analyzeMl } = {}) {
   return createServer(async (req, res) => {
     try {
       const { pathname } = new URL(req.url ?? '/', 'http://localhost');
@@ -50,7 +51,10 @@ export function createApp({ generative = analyzeGenerative } = {}) {
       }
 
       const { message, mode } = parseAnalyzeRequest(data);
-      const result = mode === 'traditional' ? analyzeTraditional(message) : await generative(message);
+      let result;
+      if (mode === 'traditional') result = analyzeTraditional(message);
+      else if (mode === 'ml') result = ml(message);
+      else result = await generative(message);
       return reply(res, 200, result);
     } catch (error) {
       if (error instanceof RequestError) return reply(res, 400, { error: error.message });

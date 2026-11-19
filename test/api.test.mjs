@@ -58,6 +58,16 @@ test('API HTTP: clasificación, validación y errores controlados', async (t) =>
     assert.ok(result.response.includes('No puedo entrar.'));
   });
 
+  await t.test('responde en modo ml con el mismo contrato', async () => {
+    const response = await post(JSON.stringify({ message: 'Robaron mis datos.', mode: 'ml' }));
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    assert.deepEqual(Object.keys(result).sort(), ['category', 'mode', 'priority', 'requiresHumanReview', 'response']);
+    assert.equal(result.mode, 'ml');
+    assert.equal(result.category, 'SECURITY');
+    assert.equal(result.requiresHumanReview, true);
+  });
+
   await t.test('rechaza JSON, campos y tamaños inválidos', async () => {
     for (const body of ['{', 'null', '[]', '{}', JSON.stringify({ message: ' ', mode: 'traditional' }), JSON.stringify({ message: 'hola', mode: 'otro' }), JSON.stringify({ message: 12, mode: 'traditional' }), JSON.stringify({ message: 'x'.repeat(5001), mode: 'traditional' })]) {
       assert.equal((await post(body)).status, 400);
